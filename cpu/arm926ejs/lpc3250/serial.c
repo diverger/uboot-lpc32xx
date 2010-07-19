@@ -138,7 +138,7 @@ int serial_init (void)
 	}
 
 	/* Place UART in autoclock mode */
-	tmp32 = UARTCNTL->clkmode & UART_CLKMODE_MASK(unum);
+	tmp32 = UARTCNTL->clkmode & ~UART_CLKMODE_MASK(unum);
 	UARTCNTL->clkmode = (tmp32 |
 		UART_CLKMODE_LOAD(UART_CLKMODE_AUTO, (unum)));
 
