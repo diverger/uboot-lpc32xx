@@ -36,6 +36,24 @@ extern PHY_HW_T phyhwdesc;
 extern void phy3250_get_board_info(void);
 extern int dcache_kill(void);
 
+/* Initialize NOR Flash configuration */
+#ifdef CONFIG_FLASH_CFI_LEGACY
+ulong board_flash_get_legacy (ulong base, int banknum, flash_info_t * info)
+{
+	/*
+	 * PHY3250 board contains two 16-bit SPANSION NOR flash
+	 * to make a single 32 bit NOR flash. 
+	 */
+	if (banknum == 0) {     /* non-CFI boot flash */
+		info->portwidth = FLASH_CFI_32BIT;
+		info->chipwidth = FLASH_CFI_BY16;
+		info->interface = FLASH_CFI_X16;
+		return 1;
+	} else
+		return 0;
+}
+#endif
+
 /*
  * Dummy function to handle errors for EABI incompatibility
  */
@@ -214,7 +232,22 @@ int board_init (void)
                     SLCTAC_RWIDTH(15) |
                     SLCTAC_RHOLD(15) |
                     SLCTAC_RSETUP(15));
-#endif	
+#endif
+
+#ifdef CONFIG_SYS_FLASH_CFI
+	/* Use 32-bit memory interface for NOR Flash */
+	EMC->emcstatic_regs[0].emcstaticconfig = 0x82;
+	/* 
+	 * After Setting a higher clock speed, change the NOR timings to 
+	 * optimum value to get maximum bandwidth
+	 */
+	EMC->emcstatic_regs[0].emcstaticwaitwen = 0x0;
+	EMC->emcstatic_regs[0].emcstaticwait0en = 0x0;
+	EMC->emcstatic_regs[0].emcstaticwaitrd = 0xb;
+	EMC->emcstatic_regs[0].emcstaticpage = 0xb;
+	EMC->emcstatic_regs[0].emcstaticwr = 0x3;
+	EMC->emcstatic_regs[0].emcstaticturn = 0x1;
+#endif
 
 	return 0;
 }

@@ -2022,6 +2022,68 @@ typedef struct
 #define I2C_SEVEN   _BIT(9)         /* Seven-bit slave address */
 #define I2C_TFFSIE  _BIT(10)        /* Slave Trnsmt FIFO Not Full IE */
 
+/**********************************************************************
+* External Memory Controller register definitions
+**********************************************************************/
+/* Static chip select configuration structure */
+typedef struct
+{
+  volatile unsigned int emcstaticconfig;
+  volatile unsigned int emcstaticwaitwen;
+  volatile unsigned int emcstaticwait0en;
+  volatile unsigned int emcstaticwaitrd;
+  volatile unsigned int emcstaticpage;
+  volatile unsigned int emcstaticwr;
+  volatile unsigned int emcstaticturn;
+  volatile unsigned int reserved;
+} EMC_STATIC_CFG;
+
+/*  AHB control structure */
+typedef struct
+{
+  volatile unsigned int emcahbcontrol;
+  volatile unsigned int emcahbstatus;
+  volatile unsigned int emcahbtimeout;
+  volatile unsigned int reserved [5];
+} EMC_AHB_CTRL_T;
+
+typedef struct
+{
+  volatile unsigned int emccontrol;
+  volatile unsigned int emcstatus;
+  volatile unsigned int emcconfig;
+  volatile unsigned int reserved1 [5];
+  volatile unsigned int emcdynamiccontrol;
+  volatile unsigned int emcdynamicrefresh;
+  volatile unsigned int emcdynamicreadconfig;
+  volatile unsigned int reserved2;
+  volatile unsigned int emcdynamictrp;
+  volatile unsigned int emcdynamictras;
+  volatile unsigned int emcdynamictsrex;
+  volatile unsigned int reserved3 [2];
+  volatile unsigned int emcdynamictwr;
+  volatile unsigned int emcdynamictrc;
+  volatile unsigned int emcdynamictrfc;
+  volatile unsigned int emcdynamictxsr;
+  volatile unsigned int emcdynamictrrd;
+  volatile unsigned int emcdynamictmrd;
+  volatile unsigned int emcdynamictcdlr;
+  volatile unsigned int reserved4 [8];
+  volatile unsigned int emcstaticextendedwait;
+  volatile unsigned int reserved5 [31];
+  volatile unsigned int emcdynamicconfig0;
+  volatile unsigned int emcdynamicrascas0;
+  volatile unsigned int reserved6 [6];
+  volatile unsigned int emcdynamicconfig1;
+  volatile unsigned int emcdynamicrascas1;
+  volatile unsigned int reserved7 [54];
+  EMC_STATIC_CFG  emcstatic_regs [4];
+  volatile unsigned int reserved8 [96];
+  EMC_AHB_CTRL_T  emcahn_regs [5];
+} EMC_REGS_T;
+
+/* Macro pointing to EMC registers */
+#define EMC  ((EMC_REGS_T *)(EMC_BASE))
 
 #endif /* __LPC3250_H */
 

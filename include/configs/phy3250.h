@@ -94,8 +94,19 @@
 /*
  * NOR FLASH not supported
  */
-#define CONFIG_SYS_NO_FLASH
-#undef CONFIG_ENV_IS_IN_FLASH
+/* NOR Flash (Spansion S29AL008D) */
+#define CONFIG_FLASH_CFI_LEGACY         
+#define CONFIG_SYS_FLASH_CFI
+#define CONFIG_FLASH_CFI_DRIVER
+#define CONFIG_SYS_FLASH_BASE		(0xE0000000)
+#define CONFIG_SYS_MAX_FLASH_BANKS	(1)
+#define CONFIG_SYS_MAX_FLASH_SECT	19
+#define CONFIG_SYS_FLASH_BANKS_LIST	{ CONFIG_SYS_FLASH_BASE }
+#define CONFIG_SYS_FLASH_LEGACY_512Kx16	1
+#define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_16BIT
+
+/* Uncomment below line if you want to store environment in NOR */
+/* #define CONFIG_ENV_IS_IN_FLASH */
 
 /*
  * 1KHz clock tick
@@ -116,10 +127,16 @@
 /*
  * Address and size of Environment Data
  */
+#ifdef CONFIG_ENV_IS_IN_FLASH
+#define CONFIG_ENV_SECT_SIZE	0x8000
+#define CONFIG_ENV_SIZE		(CONFIG_ENV_SECT_SIZE)
+#define CONFIG_ENV_ADDR		(0xE0008000) /* Sector 3 (0x8000 - 0xFFFF) */
+#else
 #define CONFIG_ENV_IS_IN_NAND	1
 #define CONFIG_ENV_SIZE		0x4000 /* 1 block */
 #define CONFIG_ENV_OFFSET	0x168000 /* Block 90 */
 #define CONFIG_ENV_ADDR		0x80000100 /* Passed to kernel here */
+#endif
 
 /*
  * Area and size for malloc
