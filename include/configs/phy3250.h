@@ -76,7 +76,8 @@
 /*
  * Linux machine type
  */
-#define MACH_TYPE_UBOOTSYS MACH_TYPE_LPC3XXX
+#define MACH_TYPE_PHY3250 (2511)
+#define MACH_TYPE_UBOOTSYS MACH_TYPE_PHY3250
 
 /*
  * System UART selection, valid selections include UART3, UART4,
@@ -187,6 +188,7 @@
 #define CONFIG_CMD_BDI
 #define CONFIG_CMD_SAVEENV
 #define CONFIG_CMD_ELF
+#define CONFIG_MISC_INIT_R
 #undef CONFIG_CMD_MISC
 
 /*
@@ -227,10 +229,11 @@
  */
 #define CONFIG_NETMASK		   255.255.255.0
 #define CONFIG_IPADDR		   192.168.1.193
-#define CONFIG_SERVERIP		   192.168.1.51
+#define CONFIG_SERVERIP		   192.168.1.45
+#define CONFIG_GATEWAYIP	   192.168.1.1
+#define CONFIG_NETMASK		   255.255.255.0
 #define CONFIG_BOOTFILE		   "uImage"  /* File to load */
-#define CONFIG_BOOTARGS		   "console=ttyS0,115200n8 root=/dev/nfs rw nfsroot=192.168.1.51:/home/user/ltib/rootfs ip=192.168.1.193"
-
+#define CONFIG_BOOTARGS		   "console=ttyS0,115200n8 root=/dev/nfs rw nfsroot=192.168.1.51:/home/user/ltib/rootfs ethaddr=${ethaddr} ip=192.168.1.193"
 /*
  * BOOTP options
  */

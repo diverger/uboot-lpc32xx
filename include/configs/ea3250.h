@@ -76,7 +76,8 @@
 /*
  * Linux machine type
  */
-#define MACH_TYPE_UBOOTSYS MACH_TYPE_LPC3XXX
+#define MACH_TYPE_EA3250 (2512)
+#define MACH_TYPE_UBOOTSYS MACH_TYPE_EA3250
 
 /*
  * System UART selection, valid selections include UART3, UART4,
@@ -257,14 +258,14 @@
 #define CONFIG_NFSBOOTCOMMAND					\
  "setenv bootargs root=/dev/nfs rw "				\
 	"nfsroot=$(serverip):$(rootpath) "			\
-	"ip=$(ipaddr) ea_ethaddr=$(ethaddr) "			\
+	"ip=$(ipaddr) ethaddr=$(ethaddr) "			\
 	"console=ttyS0,115200n8;"				\
 	"run loadkernel;"					\
 	"bootm $(loadaddr)"
 
 #define MTDBOOTCOMMAND "mtdboot="				\
  "setenv bootargs root=/dev/mtdblock3 rw rootfstype=jffs2 "	\
-	"ip=$(ipaddr) ea_ethaddr=$(ethaddr) "			\
+	"ip=$(ipaddr) ethaddr=$(ethaddr) "			\
 	"console=ttyS0,115200n8; "				\
 	"run loadkernel;"					\
 	"bootm $(loadaddr)\0"

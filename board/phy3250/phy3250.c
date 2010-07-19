@@ -153,9 +153,26 @@ void udelay(unsigned long usec)
 /*
  * Miscellaneous platform dependent initialisations
  */
+int misc_init_r(void)
+{
+	char enetaddr[18];
+	char *addr;
+	int i = 0;
+
+	sprintf(enetaddr, "%02X:%02X:%02X:%02X:%02X:%02X",
+			phyhwdesc.mac[0],
+			phyhwdesc.mac[1],
+			phyhwdesc.mac[2],
+			phyhwdesc.mac[3],
+			phyhwdesc.mac[4],
+			phyhwdesc.mac[5]);
+	setenv("ethaddr",enetaddr);
+
+	return 1;
+}
 
 int board_init (void)
-{
+{	
 	/* Kill data cache */
 	dcache_kill();
 
