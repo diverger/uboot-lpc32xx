@@ -36,6 +36,20 @@ extern PHY_HW_T phyhwdesc;
 extern void phy3250_get_board_info(void);
 extern int dcache_kill(void);
 
+/*
+ * Dummy function to handle errors for EABI incompatibility
+ */
+void raise(void)
+{
+}
+
+/*
+ * Dummy function to handle errors for EABI incompatibility
+ */
+void abort(void)
+{
+}
+
 void reset_timer (void)
 {
 	unsigned int clkdlycnt, tbaseclk;
@@ -217,4 +231,5 @@ int dram_init (void)
 
 	return 0;
 }
+
 

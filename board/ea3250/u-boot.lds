@@ -37,6 +37,11 @@ SECTIONS
 
 	. = ALIGN(4);
 	.rodata : { *(.rodata) }
+ 
+	.ARM.extab	: { *(.ARM.extab* .gnu.linkonce.armextab.*) }
+	__exidx_start = .;
+	.ARM.exidx	: { *(.ARM.exidx* .gnu.linkonce.armexidx.*) }
+	__exidx_end = .;
 
 	. = ALIGN(4);
 	.data : { *(.data) }

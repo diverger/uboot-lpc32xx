@@ -90,6 +90,20 @@ extern int dcache_kill(void);
 #define I2C_WRITE     0x00
 #define DUMMY_BYTE    0x55
 
+/*
+ * Dummy function to handle errors for EABI incompatibility
+ */
+void raise(void)
+{
+}
+
+/*
+ * Dummy function to handle errors for EABI incompatibility
+ */
+void abort(void)
+{
+}
+
 void reset_timer (void)
 {
 	unsigned int clkdlycnt, tbaseclk;
