@@ -29,6 +29,7 @@
 #include <lpc3250.h>
 #include <configs/ea3250.h>
 #include "ea3250_prv.h"
+#include "miiphy.h"
 
 static unsigned long g_dmabase;
 static unsigned long gdma_size;
@@ -114,7 +115,7 @@ int HYPHYReset(void)
 	unsigned long tmp1, mst;
 
 	// Reset the PHY and wait for reset to complete
-	goodacc = RMII_Write(PHY_REG_BMCR, PHY_BMCR_RESET_BIT);
+	goodacc = RMII_Write(PHY_BMCR, PHY_BMCR_RESET);
 	if (goodacc == 0)
 	{
 		return 0;
@@ -123,8 +124,8 @@ int HYPHYReset(void)
 	goodacc = 0;
 	while (mst > 0)
 	{
-		RMII_Read(PHY_REG_BMCR, &tmp1);
-		if ((tmp1 & PHY_BMCR_RESET_BIT) == 0)
+		RMII_Read(PHY_BMCR, &tmp1);
+		if ((tmp1 & PHY_BMCR_RESET) == 0)
 		{
 			mst = 0;
 			goodacc = 1;
@@ -137,6 +138,43 @@ int HYPHYReset(void)
 	}
 
 	return goodacc;
+}
+
+static int phy_get_link_status (void)
+{
+        unsigned long status;
+
+        /* Status is read once to clear old link state */
+        RMII_Read(PHY_BMSR,&status);
+
+        /*
+	 * Wait if the link is up, and autonegotiation is in progress
+	 * (ie - we're capable and it's not done)
+	 */
+        status = 0;
+        RMII_Read(PHY_BMSR,&status);
+        if ((status & PHY_BMSR_LS) && (status & PHY_BMSR_AUTN_ABLE)
+            && !(status & PHY_BMSR_AUTN_COMP)) {
+                int i = 0;
+
+                while (!(status & PHY_BMSR_AUTN_COMP)) {
+                        /* Timeout reached */
+                        if (i > 1000) {
+                                printf("Timeout\n");
+                                return 1;
+                        }
+                        i++;
+                        msDelay(1);   /* 1 ms */
+                        RMII_Read(PHY_BMSR,&status);
+                }
+                return 0;
+        } else {
+                if (status & PHY_BMSR_LS)
+                        return 0;
+                else
+                        return 1;
+        }
+        return 1;
 }
 
 //------------------------------------------------------------------------------
@@ -232,7 +270,8 @@ int txrx_setup(void)
 //------------------------------------------------------------------------------
 int HWInit(bd_t * bd)
 {
-	int btemp, goodacc;
+	int btemp;
+	unsigned int duplex, speed;
 	unsigned long tmp1, mst = 250;
 
 	// Enable MAC interface
@@ -276,92 +315,41 @@ int HWInit(bd_t * bd)
 	// MII setup
 	ENETMAC->command = COMMAND_PASSRUNTFRAME;
 #endif
-
-	// Reset PHY
-	goodacc = HYPHYReset();
-	if (goodacc == 0)
-	{
-		printf("ENET:Reset of PHY timed out\n");
-		return 0;
-	}
-
 	// Enable rate auto-negotiation for the link
-	if (RMII_Write(PHY_REG_BMCR,
-		(PHY_BMCR_SPEED_BIT | PHY_BMCR_AUTON_BIT)) == 0)
+	if (RMII_Write(PHY_BMCR,
+		(PHY_BMCR_100MB | PHY_BMCR_AUTON)) == 0)
 	{
 		return 0;
 	}
-
-	// Wait up to 5 seconds for auto-negotiation to finish
-	mst = 5000;
-	goodacc = 1;
-	btemp = 0;
-	while (mst > 0)
-	{
-		goodacc &= RMII_Read(PHY_REG_BMSR, &tmp1);
-		if ((tmp1 & PHY_BMSR_AUTON_COMPLETE) != 0)
-		{
-			mst = 0;
-			btemp = 1;
-			printf("ENET:auto-negotiation complete\n");
-		}
-		else
-		{
-			mst--;
-			msDelay(1);
-		}
-	}
-	if ((goodacc == 0) || (btemp == 0))
-	{
-		printf("ENET:auto-negotiation failed\n");
-		return 0;
-	}
-
-	// Check link status
+        
 	mst = 1000;
-	goodacc = 1;
-	btemp = 0;
-	while (mst > 0)
-	{
-		goodacc &= RMII_Read(PHY_REG_BMSR, &tmp1);
-		if ((tmp1 & PHY_BMSR_LINKUP_STATUS) != 0)
-		{
-			mst = 0;
-			btemp = 1;
-			printf("ENET:Link status up\n");
-		}
-		else
-		{
-			mst--;
-			msDelay(1);
-		}
-	}
-	if ((goodacc == 0) || (btemp == 0))
-	{
-		printf("ENET:Link status failure\n");
-		return 0;
-	}
+        btemp = 1;
+        while(mst > 0)
+        {
+                /* Wait for Link status to set UP or Timeout */
+                if(phy_get_link_status() == 0) {
+                        mst = 0;
+                        btemp = 0;
+                        printf("ENET:auto-negotiation complete#$\n");
+                }
+                else {
+                        mst--;
+                        msDelay(1);
+                }
+        }
+        if(btemp) {
+                printf("ENET:auto-negotiation failed#$\n");
+                return 0;
+        }
 
-	// Try 100MBase/full duplex
-	goodacc = btemp = 0;
-	if ((tmp1 & PHY_BMSR_TX_FULL) != 0)
-	{
-		// Setup for full duplex and 100MBase
-		goodacc = btemp = 1;
-	}
-	else if ((tmp1 & PHY_BMSR_TX_HALF) != 0)
-	{
-		// Setup for half duplex and 100MBase
-		goodacc = 1;
-	}
-	else if ((tmp1 & PHY_BMSR_TX_HALF) != 0)
-	{
-		// Setup for full duplex and 10MBase
-		btemp = 1;
-	}
+        /* Read PHY Status Register to determine Ethernet Configuration */
+        tmp1 = 0;
+        RMII_Read (DP83848_PHY_STATUS,&tmp1);
+        duplex = (tmp1 & 0x0004) >> 2;
+        speed = (tmp1 & 0x0002) >> 1;
 
 	// Configure Full/Half Duplex mode
-	if (btemp == 1)
+	if (duplex == 1)
 	{
 		// 10MBase full duplex is supported
 		ENETMAC->mac2 |= MAC2_FULL_DUPLEX;
@@ -376,7 +364,7 @@ int HWInit(bd_t * bd)
 	}
 
 	// Configure 100MBit/10MBit mode
-	if (goodacc == 1)
+	if (speed == 0)
 	{
 		// 100MBase mode
 		ENETMAC->supp = SUPP_SPEED;
@@ -412,8 +400,8 @@ int HWInit(bd_t * bd)
 	// Perform a 'dummy' send of the first ethernet frame with a size of 0
 	// to 'prime' the MAC. The first packet after a reset seems to wait
 	// until at least 2 packets are ready to go.
-	goodacc = 0;
-	eth_send(&goodacc, 4);
+	tmp1 = 0;
+	eth_send(&tmp1, 4);
 
 	return 1;
 }
@@ -475,6 +463,7 @@ int eth_init (bd_t * bd)
 	{
 		printf ("ENET init failure\n");
 		HWDeInit();
+		return -1;
 	}
 
 	return 0;
