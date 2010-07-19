@@ -25,7 +25,7 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(BOARD).a
 
-COBJS	:= ea3250.o nand.o net.o
+COBJS	:= ea3250.o net.o
 COBJS	+= lowlevelsys_init.o
 SOBJS	:= lowlevel_init.o
 

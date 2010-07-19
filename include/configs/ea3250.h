@@ -117,8 +117,8 @@
  * Address and size of Environment Data
  */
 #define CONFIG_ENV_IS_IN_NAND	1
-#define CONFIG_ENV_SIZE		0x20000    /* 1 block */
-#define CONFIG_ENV_OFFSET	0xE0000    /* Block 7 */
+#define CONFIG_ENV_SIZE		0x40000    /* 2 blocks */
+#define CONFIG_ENV_OFFSET	0xFA0000    /* Block 125 */
 #define CONFIG_ENV_ADDR		0x80000100 /* Passed to kernel here */
 
 /*
@@ -226,9 +226,27 @@
  * Support for NAND FLASH, environment store in NAND at block 100
  */
 #define CONFIG_CMD_NAND
+#define CONFIG_SYS_LPC32XX_NAND    /* Enable SLC NAND controller driver */
 #define CONFIG_SYS_MAX_NAND_DEVICE 1
 #define CONFIG_SYS_NAND_BASE 0x20020000 /* SLC NAND controller */
 #define CFG_ENV_IS_IN_NAND
+#define LPC32XX_SLC_NAND_TIMING (SLCTAC_WDR(14) | \
+                    SLCTAC_WWIDTH(5) | \
+                    SLCTAC_WHOLD(2) | \
+                    SLCTAC_WSETUP(1) | \
+                    SLCTAC_RDR(14) | \
+                    SLCTAC_RWIDTH(4) | \
+                    SLCTAC_RHOLD(2) | \
+                    SLCTAC_RSETUP(1))
+
+
+/*
+ * NAND H/W ECC specific settings
+ */
+#define CONFIG_SYS_LPC32XX_DMA            /* DMA supporte required */
+#define CONFIG_SYS_NAND_ECCSIZE      2048 /* ECC generated per page */
+#define CONFIG_SYS_NAND_ECCBYTES       32 /* 3 Bytes ECC per 256 Bytes */
+#define CONFIG_SYS_NAND_OOBSIZE        64 /* OOB size in bytes */
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
