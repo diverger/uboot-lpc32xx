@@ -37,6 +37,8 @@
 #define SLC_BASE	0x20020000	/* SLC NAND Flash registers base*/
 #define SD_BASE		0x20098000	/* SD card interface registers base*/
 #define DMA_BASE	0x31000000	/* DMA controller registers base*/
+#define USB_OTG_BASE	0x31020000	/*USB OTG registers base*/
+#define OTG_I2C_BASE	0x31020300	/*USB I2C registers base*/
 
 /*
  * FAB physical address bases used in u-boot
@@ -452,6 +454,56 @@ typedef struct
 /* Read only status mask bit of the PLL lock state, (0) = PLL is not
    locked, (1) = PLL is locked */
 #define CLKPWR_HCLKPLL_PLL_STS     _BIT(0)
+
+
+/**********************************************************************
+* clkpwr_usb_ctrl register definitions
+**********************************************************************/
+/* USB slave HCLK clock disable (0) / enable (1) bit */
+#define CLKPWR_USBCTRL_HCLK_EN     _BIT(24)
+/* USB I2C enable, (0) = automatic USB I2C enable, (1) = disable (by
+   driving '0' to the OE_TP_N pad */
+#define CLKPWR_USBCTRL_USBI2C_EN   _BIT(23)
+/* USB_DEV_NEED_CLK enable, (0) = USB_DEV_NEED_CLK not let into clock
+   switch, (1) = USB_DEV_NEED_CLK let into clock switch */
+#define CLKPWR_USBCTRL_USBDVND_EN  _BIT(22)
+/* USB_HOST_NEED_CLK enable, (0) = USB_HOST_NEED_CLK not let into clock
+   switch, (1) = USB_HOST_NEED_CLK let into clock switch */
+#define CLKPWR_USBCTRL_USBHSTND_EN _BIT(21)
+/* USB_DAT_VP and USB_SE0_VM pull-up added to pad */
+#define CLKPWR_USBCTRL_PU_ADD      (0x0 << 19)
+/* USB_DAT_VP and USB_SE0_VM bus keeper mode */
+#define CLKPWR_USBCTRL_BUS_KEEPER  (0x1 << 19)
+/* USB_DAT_VP and USB_SE0_VM pull-down added to pad */
+#define CLKPWR_USBCTRL_PD_ADD      (0x3 << 19)
+/* USB (CLKEN2) clock disable (0) / enable (1) bit */
+#define CLKPWR_USBCTRL_CLK_EN2     _BIT(18)
+/* USB (CLKEN1) clock disable (0) / enable (1) bit */
+#define CLKPWR_USBCTRL_CLK_EN1     _BIT(17)
+/* USB PLL Power up (1) / power down (0) bit */
+#define CLKPWR_USBCTRL_PLL_PWRUP   _BIT(16)
+/* USB PLL CCO bypass bit, (0) = use post divider, (1) = bypass */
+#define CLKPWR_USBCTRL_CCO_BYPASS  _BIT(15)
+/* USB PLL direct output bit, (0) = use post divider as PLL output,
+   (1) = bypass post divider */
+#define CLKPWR_USBCTRL_POSTDIV_BYPASS _BIT(14)
+/* USB PLL feedback divider path control, (0) = feedback
+   divider clocked by CCO, (1) = feedback divider clocked by FCLKOUT */
+#define CLKPWR_USBCTRL_FDBK_SEL_FCLK _BIT(13)
+/* USB PLL post divider setting, for a value of n, the divider is 2^n,
+   maximum value of n is 3 */
+#define CLKPWR_USBCTRL_POSTDIV_2POW(n) (((n) & 0x3) << 11)
+/* USB PLL pre divider setting, for a value of n, the divider
+   is (1+n), maximum value of n is 3 */
+#define CLKPWR_USBCTRL_PREDIV_PLUS1(n) (((n) & 0x3) << 9)
+/* USB PLL feedback setting, for a value of n, the feedback
+   is (1+n), maximum value of n is 255 */
+#define CLKPWR_USBCTRL_FDBK_PLUS1(n) (((n) & 0xFF) << 1)
+/* Read only status mask bit of the USB PLL lock state, (0) = PLL is
+   not locked, (1) = PLL is locked */
+#define CLKPWR_USBCTRL_PLL_STS     _BIT(0)
+
+
 
 /*
  * clkpwr_sdramclk_ctrl register definitions
@@ -1811,6 +1863,164 @@ typedef struct
 #define P3_GPO15_PWM33         _BIT(15)
 #define P3_GPO16_PWM32         _BIT(16)
 #define P3_GPO18_PWM31         _BIT(18)
+
+typedef struct
+{
+  volatile unsigned int baud_rate;
+  volatile unsigned int cts_en;
+  volatile unsigned int cts_inv;
+  volatile unsigned int rts_en;
+  volatile unsigned int rts_inv;
+} HSUART_CONTROL_T;
+
+typedef struct
+{
+  volatile unsigned int txrx_fifo;
+  volatile unsigned int level;
+  volatile unsigned int iir;
+  volatile unsigned int ctrl;
+  volatile unsigned int rate;
+} HSUART_REGS_T;
+
+typedef struct
+{
+  volatile unsigned int ctrl;
+  volatile unsigned int clkmode;
+  volatile unsigned int loop;
+} HSUART_CNTL_REGS_T;
+
+#define UART1 ((HSUART_REGS_T *)(HS_UART1_BASE))
+#define UART2 ((HSUART_REGS_T *)(HS_UART2_BASE))
+#define UART7 ((HSUART_REGS_T *)(HS_UART7_BASE))
+
+#define HS_UART1_BASE 0x40014000
+#define HS_UART2_BASE 0x40018000
+#define HS_UART7_BASE 0x4001C000
+
+/**********************************************************************
+* OTG I2C controller register structures
+**********************************************************************/
+
+/* OTG I2C controller module register structures */
+typedef struct
+{
+  volatile unsigned long otg_i2c_txrx;      /* OTG I2C Tx/Rx Data FIFO */
+  volatile unsigned long otg_i2c_stat;      /* OTG I2C Status Register */
+  volatile unsigned long otg_i2c_ctrl;      /* OTG I2C Control Register */
+  volatile unsigned long otg_i2c_clk_hi;    /* OTG I2C Clock Divider high */
+  volatile unsigned long otg_i2c_clk_lo;    /* OTG I2C Clock Divider low */
+} OTGI2C_REGS_T;
+
+/**********************************************************************
+* OTG controller register structures
+**********************************************************************/
+
+/* OTG controller module register structures */
+typedef struct
+{
+  volatile unsigned long reserved1[64];
+  volatile unsigned long otg_int_sts;      /* OTG int status register */
+  volatile unsigned long otg_int_enab;     /* OTG int enable register */
+  volatile unsigned long otg_int_set;      /* OTG int set register */
+  volatile unsigned long otg_int_clr;      /* OTG int clear register */
+  volatile unsigned long otg_sts_ctrl;     /* OTG status/control register */
+  volatile unsigned long otg_timer;        /* OTG timer register */
+  volatile unsigned long reserved2[122];
+  OTGI2C_REGS_T otg_i2c;
+  volatile unsigned long reserved3[824];
+  volatile unsigned long otg_clk_ctrl;      /* OTG clock control reg */
+  volatile unsigned long otg_clk_sts;       /* OTG clock status reg */
+} OTG_REGS_T;
+
+/**********************************************************************
+* otg_int_sts, otg_int_enab, otg_int_set, and otg_int_clr register
+* definitions
+**********************************************************************/
+#define OTG_INT_HNP_SUCC _BIT(3)       /* HNP success */
+#define OTG_INT_HNP_FAIL _BIT(2)       /* HNP failure */
+#define OTG_INT_REM_PLLUP _BIT(1)      /* Remove pullup interrupt */
+#define OTG_INT_TIMER _BIT(0)          /* Timer interrupt */
+
+/**********************************************************************
+* otg_sts_ctrl register definitions
+**********************************************************************/
+#define OTG_PLLUP_REMD _BIT(10)        /* Pullup removed */
+#define OTG_AB_HNP_TRK _BIT(9)         /* A to B HNP track */
+#define OTG_BA_HNP_TRK _BIT(8)         /* B to A HNP track */
+#define OTGTRAN_I2C_EN _BIT(7)         /* Enable transparent I2C */
+#define OTG_TIMER_RST _BIT(6)          /* Reset the timer */
+#define OTG_TIMER_EN _BIT(5)           /* Enable the timer */
+#define OTG_TIMER_MODE_FREE _BIT(4)    /* Enable freerun timer mode */
+#define OTG_TIMER_GRAN_10US 0x0        /* 10uS timer granularity */
+#define OTG_TIMER_GRAN_100US 0x4       /* 100uS timer granularity */
+#define OTG_TIMER_GRAN_1000US 0x8      /* 1000uS timer granularity */
+#define OTG_HOST_EN _BIT(0)            /* Enable host mode */
+
+/**********************************************************************
+* OTG I2C register definitions
+* The register definitions are exactly the same as "master only" base
+* I2C register settings. See the I2C header file for the register
+* bit descriptions for this peripheral.
+**********************************************************************/
+
+/**********************************************************************
+* otg_clk_ctrl and otg_clk_sts register definitions
+**********************************************************************/
+#define OTG_CLK_AHB_EN _BIT(4)         /* Enable AHB clock */
+#define OTG_CLK_OTG_EN _BIT(3)         /* Enable OTG clock */
+#define OTG_CLK_I2C_EN _BIT(2)         /* Enable I2C clock */
+#define OTG_CLK_DEV_EN _BIT(1)         /* Enable device clock */
+#define OTG_CLK_HOST_EN _BIT(0)        /* Enable host clock */
+
+/* Macro pointing to I2C controller registers */
+#define OTG     ((OTG_REGS_T  *)(USB_OTG_BASE))
+/* Macro pointing to I2C controller registers */
+#define OTGI2C  ((OTGI2C_REGS_T  *)(OTG_I2C_BASE))
+
+
+/**********************************************************************
+* I2C controller register structures
+**********************************************************************/
+
+
+/**********************************************************************
+* i2c_txrx register definitions
+**********************************************************************/
+#define I2C_START    _BIT(8)		/* generate a START before this B*/
+#define I2C_STOP     _BIT(9)		/* generate a STOP after this B */
+
+/**********************************************************************
+* i2c_stat register definitions
+**********************************************************************/
+#define I2C_TDI     _BIT(0)         /* Transaction Done Interrupt */
+#define I2C_AFI     _BIT(1)         /* Arbitration Failure Interrupt */
+#define I2C_NAI     _BIT(2)         /* No Acknowledge Interrupt */
+#define I2C_DRMI    _BIT(3)         /* Master Data Request Interrupt */
+#define I2C_DRSI    _BIT(4)         /* Slave Data Request Interrupt */
+#define I2C_ACTIVE  _BIT(5)         /* Busy bus indicator */
+#define I2C_SCL     _BIT(6)         /* The current SCL signal value */
+#define I2C_SDA     _BIT(7)         /* The current SDA signal value */
+#define I2C_RFF     _BIT(8)         /* Receive FIFO Full */
+#define I2C_RFE     _BIT(9)         /* Receive FIFO Empty */
+#define I2C_TFF     _BIT(10)        /* Transmit FIFO Full */
+#define I2C_TFE     _BIT(11)        /* Transmit FIFO Empty */
+#define I2C_TFFS    _BIT(12)        /* Slave Transmit FIFO Full */
+#define I2C_TFES    _BIT(13)        /* Slave Transmit FIFO Empty */
+
+/**********************************************************************
+* i2c_ctrl register definitions
+**********************************************************************/
+#define I2C_TDIE    _BIT(0)         /* Transaction Done Int Enable */
+#define I2C_AFIE    _BIT(1)         /* Arbitration Failure Int Ena */
+#define I2C_NAIE    _BIT(2)         /* No Acknowledge Int Enable */
+#define I2C_DRMIE   _BIT(3)         /* Master Data Request Int Ena */
+#define I2C_DRSIE   _BIT(4)         /* Slave Data Request Int Ena */
+#define I2C_RFFIE   _BIT(5)         /* Receive FIFO Full Int Ena */
+#define I2C_RFDAIE  _BIT(6)         /* Rcv Data Available Int Ena */
+#define I2C_TFFIE   _BIT(7)         /* Trnsmt FIFO Not Full Int Ena */
+#define I2C_RESET   _BIT(8)         /* Soft Reset */
+#define I2C_SEVEN   _BIT(9)         /* Seven-bit slave address */
+#define I2C_TFFSIE  _BIT(10)        /* Slave Trnsmt FIFO Not Full IE */
 
 
 #endif /* __LPC3250_H */
