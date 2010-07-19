@@ -23,6 +23,7 @@
 
 #include <common.h>
 #include <lpc3250.h>
+#include <div64.h>
 
 //DECLARE_GLOBAL_DATA_PTR;
 
@@ -68,7 +69,8 @@ typedef struct
 static unsigned int clkpwr_check_pll_setup(unsigned int ifreq,
 						CLKPWR_HCLK_PLL_SETUP_T *pllsetup)
 {
-  unsigned long long i64freq, p, m, n, fcco, fref, cfreq;
+  unsigned long long i64freq, p, m, n, fcco, fref,
+		cfreq, div_cfreq, div_fcco, div_fref;
   int mode;
 
   /* PLL requirements */
@@ -78,6 +80,7 @@ static unsigned int clkpwr_check_pll_setup(unsigned int ifreq,
   /* Assume the passed input data is not valid */
 
 	fcco = fref = cfreq = 0;
+  	div_cfreq = div_fcco = div_fref = 0;
 
   /* Work with 64-bit values to prevent overflow */
   i64freq = (unsigned long long) ifreq;
@@ -89,30 +92,41 @@ static unsigned int clkpwr_check_pll_setup(unsigned int ifreq,
   mode = (pllsetup->cco_bypass_b15 << 2) |
          (pllsetup->direct_output_b14 << 1) |
          pllsetup->fdbk_div_ctrl_b13;
+
   switch (mode)
   {
     case 0x0: /* Non-integer mode */
-      cfreq = (m * i64freq) / (2 * p * n);
-      fcco = (m * i64freq) / n;
-      fref = i64freq / n;
+      cfreq = m * i64freq;
+      div_cfreq = 2 * p * n;
+      fcco = m * i64freq;
+      div_fcco = n;
+      fref = i64freq;
+      div_fref = n;
       break;
 
     case 0x1: /* integer mode */
-      cfreq = (m * i64freq) / n;
-      fcco = (m * i64freq) / (n * 2 * p);
-      fref = i64freq / n;
+      cfreq = m * i64freq;
+      div_cfreq = n;
+      fcco = m * i64freq;
+      div_fcco = 2 * p * n;
+      fref = i64freq;
+      div_fref = n;
       break;
 
     case 0x2:
     case 0x3: /* Direct mode */
-      cfreq = (m * i64freq) / n;
-      fcco = cfreq;
-      fref = i64freq / n;
+      cfreq = m * i64freq;
+      div_cfreq = n;
+      fcco = m * i64freq;
+      div_fcco = n;
+      fref = i64freq;
+      div_fref = n;
       break;
 
     case 0x4:
     case 0x5: /* Bypass mode */
-      cfreq = i64freq / (2 * p);
+      cfreq = i64freq;
+      div_cfreq = 2 * p;
       fcco = 156000000;
       fref = 1000000;
       break;
@@ -124,6 +138,15 @@ static unsigned int clkpwr_check_pll_setup(unsigned int ifreq,
       fref = 1000000;
       break;
   }
+
+  if (div_cfreq != 0)
+	  do_div(cfreq, div_cfreq);
+  
+  if (div_fcco != 0)
+	  do_div(fcco, div_fcco);
+
+  if (div_fref != 0)
+	  do_div(fref, div_fref);
 
   if ((fcco < 156000000) || (fcco > 320000000))
   {
