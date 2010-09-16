@@ -2718,6 +2718,9 @@ phy3250_config	:	unconfig
 ea3250_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm926ejs ea3250 NULL lpc3250
 
+fdi3250_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs fdi3250 NULL lpc3250
+
 ########################################################################
 ## ARM Integrator boards - see doc/README-integrator for more info.
 integratorap_config	\

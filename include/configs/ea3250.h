@@ -269,17 +269,14 @@
 #define CONFIG_BOOTFILE		"uImage"  /* File to load */
 #define CONFIG_LOADADDR		0x80100000	   
 #define CONFIG_ROOTPATH		/home/user/ltib/rootfs
-#define CONFIG_BOOTARGS		
-
-#define CONFIG_BOOTCOMMAND	"run mtdboot"
-
-#define CONFIG_NFSBOOTCOMMAND					\
- "setenv bootargs root=/dev/nfs rw "				\
+#define CONFIG_BOOTARGS		"root=/dev/nfs rw "		\
 	"nfsroot=$(serverip):$(rootpath) "			\
 	"ip=$(ipaddr) ethaddr=$(ethaddr) "			\
 	"console=ttyS0,115200n8;"				\
 	"run loadkernel;"					\
 	"bootm $(loadaddr)"
+
+#define CONFIG_BOOTCOMMAND	"dhcp; bootm"
 
 #define MTDBOOTCOMMAND "mtdboot="				\
  "setenv bootargs root=/dev/mtdblock3 rw rootfstype=jffs2 "	\
@@ -288,45 +285,13 @@
 	"run loadkernel;"					\
 	"bootm $(loadaddr)\0"
 
-#define UPDATEKERNEL "update_kernel="				\
-	"run loadkernel; "					\
-	"nand erase $(nand_kernel_off) $(nand_kernel_sz); "	\
-	"nand write.jffs2 $(loadaddr) $(nand_kernel_off) $(nand_kernel_sz)\0"
-
-#define UPDATEROOTFS "update_fs="				\
-	"run loadrootfs; "					\
-	"nand erase $(nand_rootfs_off) $(nand_rootfs_sz); "	\
-	"nand write.jffs2 $(loadaddr) $(nand_rootfs_off) $(nand_rootfs_sz)\0"
-
-#define UPDATEUBOOT_TFTP "update_uboot_tftp="		\
-	"tftpboot $(loadaddr) u-boot.bin; "		\
-	"nand erase 0x60000 0x40000; "			\
-	"nand write $(loadaddr) 0x60000 0x40000\0"
-
 /*
  * Other preset environment variables and example bootargs string
  */
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"nand_kernel_off=0x100000\0" \
-	"nand_kernel_sz=0x1a0000\0" \
-	"nand_rootfs_off=0x500000\0" \
-	"nand_rootfs_sz=0x500000\0" \
-	"loadkernel=usb start;fatload usb 0 $(loadaddr) uImage;usb stop\0" \
-	"loadkernel_nand=nboot.jffs2 $(loadaddr) 0x0 $(nand_kernel_off)\0" \
-	"loadkernel_tftp=tftpboot $(loadaddr) uImage\0" \
-	"loadkernel_usb=usb start;fatload usb 0 $(loadaddr) uImage;usb stop\0" \
-	"loadrootfs=usb start;fatload usb 0 $(loadaddr) rootfs.jffs2;usb stop\0" \
-	"loadrootfs_tftp=tftpboot $(loadaddr) rootfs.jffs2\0" \
-	"loadrootfs_usb=usb start;fatload usb 0 $(loadaddr) rootfs.jffs2;usb stop\0" \
-	"erase_env=nand erase 0xe0000 0x20000\0" \
-	MTDBOOTCOMMAND \
-	UPDATEKERNEL \
-	UPDATEROOTFS \
-	UPDATEUBOOT_TFTP
+	MTDBOOTCOMMAND 
 
-
- 
 /*
  * BOOTP options
  */
