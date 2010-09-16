@@ -23,7 +23,6 @@
 
 #include <common.h>
 #include <lpc3250.h>
-#include <configs/fdi3250.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
