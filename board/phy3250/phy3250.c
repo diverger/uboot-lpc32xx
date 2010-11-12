@@ -373,32 +373,6 @@ int board_init (void)
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = CONFIG_ENV_ADDR;
 
-#ifdef CONFIG_CMD_NAND
-	/* Enable clocks to the SLC NAND controller */
-	CLKPWR->clkpwr_nand_clk_ctrl = 0x05;
-
-        /* Reset SLC NAND controller & clear ECC */
-        SLCNAND->slc_ctrl = (SLCCTRL_SW_RESET | SLCCTRL_ECC_CLEAR);
-
-        /* 8-bit bus, no DMA, CE normal */
-        SLCNAND->slc_cfg = 0;
-
-        /* Interrupts disabled and cleared */
-        SLCNAND->slc_ien = 0;
-        SLCNAND->slc_icr = (SLCSTAT_INT_TC | SLCSTAT_INT_RDY_EN);
-
-	// TBD fix me with optimal timings later
-        /* Start with slowest timings possible */
-        SLCNAND->slc_tac = (SLCTAC_WDR(15) |
-                    SLCTAC_WWIDTH(15) |
-                    SLCTAC_WHOLD(15) |
-                    SLCTAC_WSETUP(15) |
-                    SLCTAC_RDR(15) |
-                    SLCTAC_RWIDTH(15) |
-                    SLCTAC_RHOLD(15) |
-                    SLCTAC_RSETUP(15));
-#endif
-
 #ifdef CONFIG_SYS_FLASH_CFI
 	/* Use 32-bit memory interface for NOR Flash */
 	EMC->emcstatic_regs[0].emcstaticconfig = 0x82;

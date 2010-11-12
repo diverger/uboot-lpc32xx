@@ -196,12 +196,12 @@
 #define CONFIG_SYS_MAX_NAND_DEVICE 1
 #define CONFIG_SYS_NAND_BASE 0x20020000 /* SLC NAND controller */
 #define CFG_ENV_IS_IN_NAND
-#define LPC32XX_SLC_NAND_TIMING (SLCTAC_WDR(3) | \
-                    SLCTAC_WWIDTH(10) | \
+#define LPC32XX_SLC_NAND_TIMING (SLCTAC_WDR(14) | \
+                    SLCTAC_WWIDTH(9) | \
                     SLCTAC_WHOLD(3) | \
                     SLCTAC_WSETUP(4) | \
-                    SLCTAC_RDR(3) | \
-                    SLCTAC_RWIDTH(10) | \
+                    SLCTAC_RDR(14) | \
+                    SLCTAC_RWIDTH(9) | \
                     SLCTAC_RHOLD(3) | \
                     SLCTAC_RSETUP(4))
 
