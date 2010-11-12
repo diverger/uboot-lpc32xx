@@ -29,46 +29,11 @@
 #define __FDI3250_H__
 
 /*
- *
- * Chip speific options
- *
- */
-
-/*
  * Ethernet buffer support in uncached IRAM and buffer size
  */
 #define USE_IRAM_FOR_ETH_BUFFERS
 #define IRAM_ETH_BUFF_BASE 0x08010000 /* Uncached IRAM */
 #define IRAM_ETH_BUFF_SIZE 0x00010000
-
-/*
- * There are 2 boot options for u-boot on the LPC3250 board. Option 1
- * or option 2. In either cases, u-boot does not need to be relocated.
- *
- * Option 1 - define CFG_BOOT_USES1L
- * With this option, the S1L loader present in the board initializes the
- * system (including SDRAM, MMUs, some MUX states, etc.). U-boot is loaded
- * into an already initialized system in SDRAM at address 0x83FC0000 (the
- * end of SDRAM in a 64M system). Because most of the system is already
- * initialized, system init is not performed again.
- *
- * Option 2 - undefine CFG_BOOT_USES1L [NOT SUPPORTED]
- * With this option, u-boot is the primary boot loader that is loaded and
- * started from the kickstart loader (see documentation with the
- * LPC3250 board for the kickstart loader). In this configuration, u-boot
- * loads and runs from RAM at address 0x00000000 and requires complete
- * system initialization. The kickstart loader will copy the u-boot image
- * from FLASH starting at block 1 into IRAM and start it at address 0x0.
- */
-#define CFG_BOOT_USES1L
-
-#ifdef CFG_BOOT_USES1L
-/*
- * Skip low level init of MMU, SDRAM, muxing, etc. if u-boot is loaded
- * and executed from S1L
- */
-#define CONFIG_SKIP_LOWLEVEL_INIT
-#endif
 
 /*
  * Linux machine type

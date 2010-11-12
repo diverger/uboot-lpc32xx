@@ -32,7 +32,6 @@
 #include "ea3250_prv.h"
 		
 DECLARE_GLOBAL_DATA_PTR;
-extern int dcache_kill(void);
 
 /* ISP1301 USB transceiver I2C registers */
 #define	ISP1301_MODE_CONTROL_1		0x04	/* u8 read, set, +1 clear */
@@ -209,9 +208,6 @@ void udelay(unsigned long usec)
  */
 int board_init (void)
 {
-	/* Kill data cache */
-	dcache_kill();
-
 	/* arch number of Logic-Board - MACH_TYPE_LPC3XXX */
 	gd->bd->bi_arch_number = MACH_TYPE_UBOOTSYS;
 

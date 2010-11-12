@@ -36,10 +36,5 @@
  */
 void ea3250_sys_init(void)
 {
-
-#ifndef CFG_BOOT_USES1L
-	/* Initialize system including clocking, SDRAM, muxing, MMU, etc. */
-	/* TBD stubbed - NOT SUPPORTED */
-#endif
 }
 

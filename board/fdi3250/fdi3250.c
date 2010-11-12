@@ -29,7 +29,6 @@
 #include "fdi3250_prv.h"
 		
 DECLARE_GLOBAL_DATA_PTR;
-extern int dcache_kill(void);
 
 /*
  * Dummy function to handle errors for EABI incompatibility
@@ -150,9 +149,6 @@ void udelay(unsigned long usec)
  */
 int board_init (void)
 {
-	/* Kill data cache */
-	dcache_kill();
-
 	/* arch number of Logic-Board - MACH_TYPE_LPC3XXX */
 	gd->bd->bi_arch_number = MACH_TYPE_UBOOTSYS;
 
