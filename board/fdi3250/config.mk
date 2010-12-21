@@ -33,5 +33,5 @@
 # download area is 0x80f00000
 #
 
-TEXT_BASE = 0x81FC0000
+TEXT_BASE = 0x81F80000
 

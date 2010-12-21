@@ -26,7 +26,7 @@ OUTPUT_ARCH(arm)
 ENTRY(_start)
 SECTIONS
 {
-	. = 0x83FC0000;
+	. = 0x83F80000;
 
 	. = ALIGN(4);
 	.text      :
