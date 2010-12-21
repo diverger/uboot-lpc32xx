@@ -83,22 +83,6 @@ void timer_init(void)
 	reset_timer();
 }
 
-/*
- * Use the watchdog timer to reset the system
- */
-void reset_cpu(ulong addr)
-{
-	/* Enable the WDT clock */
-	CLKPWR->clkpwr_timer_clk_ctrl |= CLKPWR_PWMCLK_WDOG_EN;
-
-	/* Force RESETOUT_N active */
-	WDT->wdtim_mctrl = WDT_RESFRC1;
-	WDT->wdtim_ctrl = WDT_COUNT_ENAB;
-
-	/* Wait forever */
-	while (1);
-}
-
 void udelay(unsigned long usec)
 {
 	unsigned long tbaseclk;
