@@ -226,13 +226,99 @@
 /*
  * Network setup
  */
-#define CONFIG_NETMASK		   255.255.255.0
-#define CONFIG_IPADDR		   192.168.1.193
-#define CONFIG_SERVERIP		   192.168.1.45
-#define CONFIG_GATEWAYIP	   192.168.1.1
-#define CONFIG_NETMASK		   255.255.255.0
-#define CONFIG_BOOTFILE		   "uImage"  /* File to load */
-#define CONFIG_BOOTARGS		   "console=ttyS0,115200n8 root=/dev/nfs rw nfsroot=192.168.1.51:/home/user/ltib/rootfs ethaddr=${ethaddr} ip=192.168.1.193"
+#define CONFIG_NETMASK		255.255.255.0
+#define CONFIG_IPADDR		192.168.1.101
+#define CONFIG_SERVERIP		192.168.1.41
+#define CONFIG_GATEWAYIP	192.168.1.1
+
+#define CONFIG_BOOTFILE		uImage
+#define CONFIG_LOADADDR		0x80100000
+#define CONFIG_ROOTPATH		/home/user/ltib/rootfs
+
+/* Boot arguments for JFFS2 root file system in NAND */
+#define MTDROOTCOMMAND "mtdboot="				\
+	"setenv bootargs "					\
+	"console=ttyS0,115200n8 "				\
+	"root=/dev/mtdblock4 rw rootfstype=jffs2 "		\
+	"ip=${ipaddr} ethaddr=${ethaddr}\0"
+
+/* Boot arguments for NFS based root file system */
+#define NFSROOTCOMMAND "nfsboot="				\
+	"setenv bootargs "					\
+	"console=ttyS0,115200n8 "				\
+	"root=/dev/nfs3 rw nfsroot=${serverip}:${rootpath} "	\
+	"ip=${ipaddr} ethaddr=${ethaddr}\0"
+
+/* Boot arguments for ramdisk image loaded via TFTP */
+#define RDROOTCOMMAND "ramdiskboot="				\
+	"setenv bootargs "					\
+	"console=ttyS0,115200n8 "				\
+	"root=/dev/ram0 rw "					\
+	"ip=${ipaddr} ethaddr=${ethaddr}\0"
+
+/* Kernel boot using tftp with static IP */
+#define TFTPSTATICIPKERNELBOOT "tftpstatickernel="		\
+	"tftpboot ${loadaddr} ${serverip}:${bootfile}\0"
+
+/* Kernel boot using tftp with DHCP obtained IP Address */
+#define TFTPDHCPKERNELBOOT "tftpdhcpkernel=dhcp\0"
+
+/*Kernel boot from NAND */
+#define MTDKERNELBOOT "mtdkernel=nboot.jffs2 ${loadaddr} "	\
+	"0 0x00604000\0"
+
+/* Command to burn kernel image into NAND FLASH */
+#define MTDKERNELBURN "mtdkernelburn="				\
+	"nand erase 0x00604000 0x00400000;"			\
+	"nand write.jffs2 ${loadaddr} 0x00604000 0x00400000\0"
+
+/* Root filesystem image name and load address */
+#define ROOTFSNAME "rootfile=rootfs.jffs2\0"
+#define ROOTFSLOADADDR "rootloadaddr=0x82000000\0"
+#define ROOTFSLOADSIZE "rootloadsize=0x01000000\0"
+
+/* Load JFFS2 root file system using TFTP with static IP */
+#define TFTPSTATICROOTFSLOAD "tftpstaticloadroot="		\
+	"tftpboot ${rootloadaddr} ${serverip}:${rootfile}\0"
+
+/* Load JFFS2 root file system using TFTP with DHCP */
+#define TFTPDHCPROOTFSLOAD "tftpdhcploadroot="			\
+	"dhcp ${rootloadaddr} ${serverip}:${rootfile}\0"
+
+/* Command to load root file system into RAM (ramdisk) */
+#define RDROOTFSLOAD "ramdiskload="				\
+	"nand read.jffs2 ${rootloadaddr} 0x00604000 "		\
+	"${rootloadsize}\0"
+
+/* Command to burn root file system image into NAND FLASH */
+#define MTDROOTBURN "mtdrootburn="				\
+	"nand erase 0x00604000 0x039FC000;"			\
+	"nand write.jffs2 ${rootloadaddr} 0x00604000"		\
+	" ${rootloadsize}\0"
+
+/*
+ * Other preset environment variables and example bootargs string
+ */
+#define CONFIG_EXTRA_ENV_SETTINGS				\
+	MTDROOTCOMMAND						\
+	NFSROOTCOMMAND						\
+	RDROOTCOMMAND						\
+	TFTPSTATICIPKERNELBOOT					\
+	TFTPDHCPKERNELBOOT					\
+	MTDKERNELBOOT						\
+	MTDKERNELBURN						\
+	ROOTFSNAME						\
+	ROOTFSLOADADDR						\
+	ROOTFSLOADSIZE						\
+	TFTPSTATICROOTFSLOAD					\
+	TFTPDHCPROOTFSLOAD					\
+	RDROOTFSLOAD						\
+	MTDROOTBURN
+
+/* Default boot command */
+#define CONFIG_BOOTCOMMAND					\
+	"run nfsboot;run tftpstatickernel; bootm ${loadaddr}"
+
 /*
  * BOOTP options
  */
