@@ -190,7 +190,7 @@
  */
 #define CONFIG_SYS_LPC32XX_DMA            /* DMA support required */
 #define CONFIG_SYS_NAND_ECCSIZE      2048 /* ECC generated per page */
-#define CONFIG_SYS_NAND_ECCBYTES       32 /* 3 Bytes ECC per 256 Bytes */
+#define CONFIG_SYS_NAND_ECCBYTES       24 /* 3 Bytes ECC per 256 Bytes */
 #define CONFIG_SYS_NAND_OOBSIZE        64 /* OOB size in bytes */
 
 /* allow to overwrite serial and ethaddr */
