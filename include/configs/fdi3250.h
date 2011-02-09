@@ -227,7 +227,7 @@
 #define NFSROOTCOMMAND "nfsboot="				\
 	"setenv bootargs "					\
 	"console=ttyTX0,115200n8 "				\
-	"root=/dev/nfs3 rw nfsroot=${serverip}:${rootpath} "	\
+	"root=/dev/nfs rw nfsroot=${serverip}:${rootpath} "	\
 	"ip=${ipaddr} ethaddr=${ethaddr}\0"
 
 /* Boot arguments for ramdisk image loaded via TFTP */
