@@ -265,12 +265,12 @@
 
 /*Kernel boot from NAND */
 #define MTDKERNELBOOT "mtdkernel=nboot.jffs2 ${loadaddr} "	\
-	"0 0x00604000\0"
+	"0 0x00204000\0"
 
 /* Command to burn kernel image into NAND FLASH */
 #define MTDKERNELBURN "mtdkernelburn="				\
-	"nand erase 0x00604000 0x00400000;"			\
-	"nand write.jffs2 ${loadaddr} 0x00604000 0x00400000\0"
+	"nand erase 0x00204000 0x00400000;"			\
+	"nand write.jffs2 ${loadaddr} 0x00204000 0x00400000\0"
 
 /* Root filesystem image name and load address */
 #define ROOTFSNAME "rootfile=rootfs.jffs2\0"
