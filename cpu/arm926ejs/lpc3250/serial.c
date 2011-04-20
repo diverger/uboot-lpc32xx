@@ -105,43 +105,43 @@ void hsuart_getdiv(u32 baudrate,
 void serial_setbrg (void)
 {
 	unsigned int xdiv, ydiv;
-    unsigned int divider;
-    UART_REGS_T *puregs = (UART_REGS_T *) CFG_UART_SEL;
-    HSUART_REGS_T *phsuregs = (HSUART_REGS_T *) CFG_UART_SEL;
+	unsigned int divider;
+	UART_REGS_T *puregs = (UART_REGS_T *) CFG_UART_SEL;
+	HSUART_REGS_T *phsuregs = (HSUART_REGS_T *) CFG_UART_SEL;
 
-    if (CFG_UART_SEL == UART1) {
-	    /* Find closest high speed baud rate for desired clock frequency */
-	    hsuart_getdiv(gd->baudrate, &divider);
-        phsuregs->rate = divider;
+	if (CFG_UART_SEL == UART1) {
+		/* Find closest high speed baud rate for desired clock frequency */
+		hsuart_getdiv(gd->baudrate, &divider);
+		phsuregs->rate = divider;
 
-        // Disable flow control
-        phsuregs->ctrl &= ~((1<<14)|(1<<18));
-    } else {
-	    /* Find closest baud rate for desired clock frequency */
-	    serial_getdiv(gd->baudrate, &xdiv, &ydiv);
+		// Disable flow control
+		phsuregs->ctrl &= ~((1<<14)|(1<<18));
+	} else {
+		/* Find closest baud rate for desired clock frequency */
+		serial_getdiv(gd->baudrate, &xdiv, &ydiv);
 
-	    /* Set clock x/y divider for the UART */
-	    if (puregs == UART3)
-	    {
-		    CLKPWR->clkpwr_uart3_clk_ctrl =
-			    CLKPWR_UART_X_DIV(xdiv) | CLKPWR_UART_Y_DIV(ydiv);
-	    }
-	    else if (puregs == UART4)
-	    {
-		    CLKPWR->clkpwr_uart4_clk_ctrl =
-			    CLKPWR_UART_X_DIV(xdiv) | CLKPWR_UART_Y_DIV(ydiv);
-	    }
-	    else if (puregs == UART5)
-	    {
-		    CLKPWR->clkpwr_uart5_clk_ctrl =
-			    CLKPWR_UART_X_DIV(xdiv) | CLKPWR_UART_Y_DIV(ydiv);
-	    }
-	    else if (puregs == UART6)
-	    {
-		    CLKPWR->clkpwr_uart6_clk_ctrl =
-			    CLKPWR_UART_X_DIV(xdiv) | CLKPWR_UART_Y_DIV(ydiv);
-	    }
-    }
+		/* Set clock x/y divider for the UART */
+		if (puregs == UART3)
+		{
+			CLKPWR->clkpwr_uart3_clk_ctrl =
+			CLKPWR_UART_X_DIV(xdiv) | CLKPWR_UART_Y_DIV(ydiv);
+		}
+		else if (puregs == UART4)
+		{
+			CLKPWR->clkpwr_uart4_clk_ctrl =
+			CLKPWR_UART_X_DIV(xdiv) | CLKPWR_UART_Y_DIV(ydiv);
+		}
+		else if (puregs == UART5)
+		{
+			CLKPWR->clkpwr_uart5_clk_ctrl =
+			CLKPWR_UART_X_DIV(xdiv) | CLKPWR_UART_Y_DIV(ydiv);
+		}
+		else if (puregs == UART6)
+		{
+			CLKPWR->clkpwr_uart6_clk_ctrl =
+			CLKPWR_UART_X_DIV(xdiv) | CLKPWR_UART_Y_DIV(ydiv);
+		}
+	}
 }
 
 /*
@@ -154,74 +154,73 @@ int serial_init (void)
 	volatile unsigned int tmp32;
 	int unum;
 	UART_REGS_T *puregs = (UART_REGS_T *) CFG_UART_SEL;
-    HSUART_REGS_T *phsuregs = (HSUART_REGS_T *) CFG_UART_SEL;
+	HSUART_REGS_T *phsuregs = (HSUART_REGS_T *) CFG_UART_SEL;
 
 	/* UART setup */
+	if (phsuregs == UART1) {
+		/* set baudrate */
+		serial_setbrg();
 
-    if (phsuregs == UART1) {
-	    /* set baudrate */
-	    serial_setbrg();
+		/* setup the buffers */
+		phsuregs->ctrl = ((2<<19) /*HSU_HRTS_TRIG_32B*/ |
+											(3<<16) /* HSU_TMO_INACT_16B*/ |
+											(0x14<<9) /* HSU_OFFSET(0x14)*/ |
+											(4<<2) /* HSU_RX_TL32B */ |
+											(0<<0) /* HSU_TX_TL0B */);
+	} else {
+		/* Enable UART system clock */
+		if (puregs == UART3)
+		{
+			CLKPWR->clkpwr_uart_clk_ctrl |= CLKPWR_UARTCLKCTRL_UART3_EN;
+			unum = 3;
+		}
+		else if (puregs == UART4)
+		{
+			CLKPWR->clkpwr_uart_clk_ctrl |= CLKPWR_UARTCLKCTRL_UART4_EN;
+			unum = 4;
+		}
+		else if (puregs == UART5)
+		{
+			CLKPWR->clkpwr_uart_clk_ctrl |= CLKPWR_UARTCLKCTRL_UART5_EN;
+			unum = 5;
+		}
+		else if (puregs == UART6)
+		{
+			CLKPWR->clkpwr_uart_clk_ctrl |= CLKPWR_UARTCLKCTRL_UART6_EN;
+			unum = 6;
+		}
 
-        /* setup the buffers */
-        phsuregs->ctrl = (  (2<<19) /*HSU_HRTS_TRIG_32B*/ | 
-                            (3<<16) /* HSU_TMO_INACT_16B*/ |
-                            (0x14<<9) /* HSU_OFFSET(0x14)*/ | 
-                            (4<<2) /* HSU_RX_TL32B */ | 
-                            (0<<0) /* HSU_TX_TL0B */);
-    } else {
-	    /* Enable UART system clock */
-	    if (puregs == UART3)
-	    {
-		    CLKPWR->clkpwr_uart_clk_ctrl |= CLKPWR_UARTCLKCTRL_UART3_EN;
-		    unum = 3;
-	    }
-	    else if (puregs == UART4)
-	    {
-		    CLKPWR->clkpwr_uart_clk_ctrl |= CLKPWR_UARTCLKCTRL_UART4_EN;
-		    unum = 4;
-	    }
-	    else if (puregs == UART5)
-	    {
-		    CLKPWR->clkpwr_uart_clk_ctrl |= CLKPWR_UARTCLKCTRL_UART5_EN;
-		    unum = 5;
-	    }
-	    else if (puregs == UART6)
-	    {
-		    CLKPWR->clkpwr_uart_clk_ctrl |= CLKPWR_UARTCLKCTRL_UART6_EN;
-		    unum = 6;
-	    }
+		/* Place UART in autoclock mode */
+		tmp32 = UARTCNTL->clkmode & UART_CLKMODE_MASK(unum);
+		UARTCNTL->clkmode = (tmp32 |
+		UART_CLKMODE_LOAD(UART_CLKMODE_AUTO, (unum)));
 
-	    /* Place UART in autoclock mode */
-	    tmp32 = UARTCNTL->clkmode & UART_CLKMODE_MASK(unum);
-	    UARTCNTL->clkmode = (tmp32 |
-		    UART_CLKMODE_LOAD(UART_CLKMODE_AUTO, (unum)));
+		/* UART baud rate generator isn't used, so just set it to divider
+				by 1 */
+		puregs->lcr |= UART_LCR_DIVLATCH_EN;
+		puregs->dll_fifo = 1;
+		puregs->dlm_ier = 0;
+		puregs->lcr &= ~UART_LCR_DIVLATCH_EN;
 
-	    /* UART baud rate generator isn't used, so just set it to divider
-	       by 1 */
-	    puregs->lcr |= UART_LCR_DIVLATCH_EN;
-	    puregs->dll_fifo = 1;
-	    puregs->dlm_ier = 0;
-	    puregs->lcr &= ~UART_LCR_DIVLATCH_EN;
+		/* Setup default UART state for N81 with FIFO mode */
+		puregs->lcr = UART_LCR_WLEN_8BITS;
 
-	    /* Setup default UART state for N81 with FIFO mode */
-	    puregs->lcr = UART_LCR_WLEN_8BITS;
+		/* set baudrate */
+		serial_setbrg();
 
-	    /* set baudrate */
-	    serial_setbrg();
+		/* Clear FIFOs and set FIFO level */
+		puregs->iir_fcr = (UART_FCR_RXFIFO_TL16 |
+											UART_FCR_TXFIFO_TL0 | UART_FCR_FIFO_CTRL |
+											UART_FCR_FIFO_EN | UART_FCR_TXFIFO_FLUSH |
+											UART_FCR_RXFIFO_FLUSH);
+		tmp32 = puregs->iir_fcr;
+		tmp32 = puregs->lsr;
 
-	    /* Clear FIFOs and set FIFO level */
-	    puregs->iir_fcr = (UART_FCR_RXFIFO_TL16 |
-		    UART_FCR_TXFIFO_TL0 | UART_FCR_FIFO_CTRL |
-		    UART_FCR_FIFO_EN | UART_FCR_TXFIFO_FLUSH |
-		    UART_FCR_RXFIFO_FLUSH);
-	    tmp32 = puregs->iir_fcr;
-	    tmp32 = puregs->lsr;
-
-	    /* Use automatic clocking */
-    //	tmp32 = UARTCNTL->clkmode & UART_CLKMODE_MASK(unum + 3);
-    //	UARTCNTL->clkmode = tmp32 | UART_CLKMODE_LOAD(
-    //        	UART_CLKMODE_AUTO, (unum + 3));  // TBD delete me
-    }
+		/* Use automatic clocking */
+		//	tmp32 = UARTCNTL->clkmode & UART_CLKMODE_MASK(unum + 3);
+		//	UARTCNTL->clkmode = tmp32 | UART_CLKMODE_LOAD(
+		//        	UART_CLKMODE_AUTO, (unum + 3));  // TBD delete me
+	}
 
 	return 0;
 }
@@ -231,21 +230,21 @@ int serial_init (void)
  */
 int serial_getc (void)
 {
-    HSUART_REGS_T *phsuregs = (HSUART_REGS_T *) CFG_UART_SEL;
+	HSUART_REGS_T *phsuregs = (HSUART_REGS_T *) CFG_UART_SEL;
 	UART_REGS_T *puregs = (UART_REGS_T *) CFG_UART_SEL;
 
-    if (phsuregs == UART1) {
-        // Wait for a character to come in
-        while ((phsuregs->level & 0xFF) == 0)
-            {}
-        // Send the received character back
-        return ((unsigned char)(phsuregs->txrx_fifo));
-    } else {
-	    /* Wait for a character from the UART */
-	    while ((puregs->lsr & UART_LSR_RDR) == 0);
+	if (phsuregs == UART1) {
+		// Wait for a character to come in
+		while ((phsuregs->level & 0xFF) == 0)
+		{}
+		// Send the received character back
+		return ((unsigned char)(phsuregs->txrx_fifo));
+	} else {
+		/* Wait for a character from the UART */
+		while ((puregs->lsr & UART_LSR_RDR) == 0);
 
-	    return (int) (puregs->dll_fifo & 0xFF);
-    }
+		return (int) (puregs->dll_fifo & 0xFF);
+	}
 }
 
 /*
@@ -253,21 +252,21 @@ int serial_getc (void)
  */
 void serial_putc (const char c)
 {
-    HSUART_REGS_T *phsuregs = (HSUART_REGS_T *) CFG_UART_SEL;
+	HSUART_REGS_T *phsuregs = (HSUART_REGS_T *) CFG_UART_SEL;
 	UART_REGS_T *puregs = (UART_REGS_T *) CFG_UART_SEL;
 
-    if (phsuregs == UART1) {
-        // Send out the character
-        phsuregs->txrx_fifo = c;
-        
-        // Wait for character to be sent (goes from non-zero to 0)
-        while ((phsuregs->level & 0xFF00) != 0);
-    } else {
-	    /* Wait for FIFO to become empty */
-	    while ((puregs->lsr & UART_LSR_THRE) == 0);
+	if (phsuregs == UART1) {
+		// Send out the character
+		phsuregs->txrx_fifo = c;
 
-	    puregs->dll_fifo = (u32) c;
-    }
+		// Wait for character to be sent (goes from non-zero to 0)
+		while ((phsuregs->level & 0xFF00) != 0);
+	} else {
+		/* Wait for FIFO to become empty */
+		while ((puregs->lsr & UART_LSR_THRE) == 0);
+
+		puregs->dll_fifo = (u32) c;
+	}
 
 	/* If \n, also do \r */
 	if (c == '\n')
@@ -281,25 +280,25 @@ void serial_putc (const char c)
  */
 int serial_tstc (void)
 {
-    HSUART_REGS_T *phsuregs = (HSUART_REGS_T *) CFG_UART_SEL;
+	HSUART_REGS_T *phsuregs = (HSUART_REGS_T *) CFG_UART_SEL;
 	UART_REGS_T *puregs = (UART_REGS_T *) CFG_UART_SEL;
 
-    if (phsuregs == UART1) {
-	    /* Wait for a character from the UART */
-	    if ((phsuregs->level & 0xFF) == 0)
-	    {
-            // No characters waiting
-            return 0;
-        }
-    } else {
-	    /* Wait for a character from the UART */
-	    if ((puregs->lsr & UART_LSR_RDR) == 0)
-	    {
-		    return 0;
-	    }
-    }
+	if (phsuregs == UART1) {
+		/* Wait for a character from the UART */
+		if ((phsuregs->level & 0xFF) == 0)
+		{
+			// No characters waiting
+			return 0;
+		}
+	} else {
+		/* Wait for a character from the UART */
+		if ((puregs->lsr & UART_LSR_RDR) == 0)
+		{
+			return 0;
+		}
+	}
 
-    // Got here, must be a character waiting
+	// Got here, must be a character waiting
 	return 1;
 }
 
@@ -389,16 +388,16 @@ int serial_init (void)
 
 	/* Clear FIFOs and set FIFO level */
 	puregs->iir_fcr = (UART_FCR_RXFIFO_TL16 |
-		UART_FCR_TXFIFO_TL0 | UART_FCR_FIFO_CTRL |
-		UART_FCR_FIFO_EN | UART_FCR_TXFIFO_FLUSH |
-		UART_FCR_RXFIFO_FLUSH);
+										UART_FCR_TXFIFO_TL0 | UART_FCR_FIFO_CTRL |
+										UART_FCR_FIFO_EN | UART_FCR_TXFIFO_FLUSH |
+										UART_FCR_RXFIFO_FLUSH);
 	tmp32 = puregs->iir_fcr;
 	tmp32 = puregs->lsr;
 
 	/* Use automatic clocking */
-//	tmp32 = UARTCNTL->clkmode & UART_CLKMODE_MASK(unum + 3);
-//	UARTCNTL->clkmode = tmp32 | UART_CLKMODE_LOAD(
-//        	UART_CLKMODE_AUTO, (unum + 3));  // TBD delete me
+	//	tmp32 = UARTCNTL->clkmode & UART_CLKMODE_MASK(unum + 3);
+	//	UARTCNTL->clkmode = tmp32 | UART_CLKMODE_LOAD(
+	//        	UART_CLKMODE_AUTO, (unum + 3));  // TBD delete me
 
 	return 0;
 }
