@@ -76,30 +76,34 @@ void serial_getdiv(u32 baudrate,
 void hsuart_getdiv(u32 baudrate,
 			unsigned int *xdiv)
 {
-  unsigned int clkrate, savedclkrate, diff, basepclk;
-  int idiv;
-  unsigned int divider;
+	unsigned int basepclk, div, goodrate, hsu_rate, l_hsu_rate, comprate;
+	unsigned int rate_diff;
 
-  /* Get the clock rate for the UART block */
-  basepclk = sys_get_rate(CLKPWR_PERIPH_CLK);
+	/* Find the closest divider to get the desired clock rate */
+	basepclk = sys_get_rate(CLKPWR_PERIPH_CLK);
+	div = basepclk / baudrate;
+	goodrate = hsu_rate = (div / 14) - 1;
+	if (hsu_rate != 0)
+		hsu_rate--;
 
-  /* Find the best divider */
-  divider = 0;
-  savedclkrate = 0;
-  diff = 0xFFFFFFFF;
-  for (idiv = 0; idiv < 0x100; idiv++)
-  {
-    clkrate = basepclk / (14 * (idiv + 1));
-    if (serial_abs(clkrate, baudrate) < diff)
-    {
-      diff = serial_abs(clkrate, baudrate);
-      savedclkrate = clkrate;
-      divider = idiv;
-    }
-  }
+	/* Tweak divider */
+	l_hsu_rate = hsu_rate + 3;
+	rate_diff = 0xFFFFFFFF;
 
-  /* Save computed divider */
-  *xdiv = divider;
+	while (hsu_rate < l_hsu_rate) {
+		comprate = basepclk / ((hsu_rate + 1) * 14);
+		if (serial_abs(comprate, baudrate) < rate_diff) {
+			goodrate = hsu_rate;
+			rate_diff = serial_abs(comprate,baudrate);
+		}
+
+		hsu_rate++;
+	}
+	if (hsu_rate > 0xFF)
+		hsu_rate = 0xFF;
+
+	/* Save computed divider */
+	*xdiv = goodrate;
 }
 
 void serial_setbrg (void)
@@ -160,6 +164,10 @@ int serial_init (void)
 	if (phsuregs == UART1) {
 		/* set baudrate */
 		serial_setbrg();
+
+		/* By default, HSUART is set to loopback mode in S1L.
+		 * Disable loopback to work */
+		UARTCNTL->loop &= ~_BIT(0);
 
 		/* setup the buffers */
 		phsuregs->ctrl = ((2<<19) /*HSU_HRTS_TRIG_32B*/ |
