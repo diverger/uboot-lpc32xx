@@ -147,9 +147,7 @@ int phy_reset(void)
 static int phy_get_link_status (void)
 {
 	unsigned long status;
-	int mst = 5000;
-	int goodacc = 1;
-	int bcomplete = 0;
+	int mst = 1000;
 
 	/* Status is read once to clear old link state */
 	RMII_Read(PHY_BMSR,&status);
@@ -159,7 +157,7 @@ static int phy_get_link_status (void)
 	 * (ie - we're capable and it's not done)
 	 */
 	status = 0;
-	goodacc &= RMII_Read(PHY_REG_BMSR, &status);
+	RMII_Read(PHY_REG_BMSR, &status);
 	
 	while ( (status & PHY_BMSR_LINKUP_STATUS)		// link is up
 		&& (status & PHY_BMSR_AUTON_ABLE)			// auto-negotiation enabled
@@ -167,25 +165,27 @@ static int phy_get_link_status (void)
 		&& ( mst > 0 )								// not timeout yet 
 		)
 	{
-		goodacc &= RMII_Read(PHY_REG_BMSR, &status);
+		RMII_Read(PHY_REG_BMSR, &status);
 		--mst;
 		msDelay(1);		// delay 1ms		
 	}
 
+	// auto-negotiation timeout, or not enabled, or link isn't up, or negotiation complete
 	if ( status & PHY_BMSR_AUTON_COMPLETE )
 	{
 		// auto negotiation complete
-		printf( "ENET:auto-negotiation complete.\n");
+		printf( "ENET:auto-negotiation complete.\n" );
 		return 0;
 	}
-	else if ( status & PHY_BMSR_LINKUP_STATUS )
+	else if ( (status & PHY_BMSR_LINKUP_STATUS) && (!(status & PHY_BMSR_AUTON_ABLE)) )
 	{
-		// link is up
+		// Auto-negotiation not available, and link is up
 		return 0;
 	}
 	else
 	{
-		// auto-negotiation timeout, or not enabled, or link isn't up
+		//
+		printf( "ENET:Link isn't up.\n" );
 		return 1;
 	}
 	
@@ -333,8 +333,10 @@ int HWInit(bd_t * bd)
 #endif
 
 	//////////////////////////////////////////////////////////////////////////
-	// reset phy
-	// 
+	// In the former, this have a reset procedure, and software auto-negotiation setting. This is true for
+	// smartarm3250 board's official u-boot code.
+	// KSZ8041NL has two method to enable auto-negotiation, hardware (Pin 30 pull-up, this is default setting) and software.
+	// On the smartarm3250 board, this pin has been pulled up to 3.3V.
 
 	mst = 1000;
 	btemp = 1;
@@ -351,7 +353,10 @@ int HWInit(bd_t * bd)
 			msDelay(1);
 		}
 	}
-	if(btemp) {
+
+	if(btemp)
+	{
+		// We've known that the board is designed to enable auto-negotiation ability, so if failed, the only reason is auto-negotiation failed.
 		printf("ENET:auto-negotiation failed.\n");
 		return 0;
 	}
@@ -361,7 +366,7 @@ int HWInit(bd_t * bd)
 	 *  Ethernet Configuration
 	 */
 	tmp1 = 0;
-	RMII_Read (LAN8700_PHY_STATUS,&tmp1);
+	RMII_Read (KSZ8041NL_PHY_STATUS,&tmp1);
 	val = (tmp1 & 0x1c) >> 2;
 	switch (val) {
 		case 1:

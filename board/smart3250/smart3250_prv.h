@@ -114,7 +114,8 @@ extern PHY_HW_T phyhwdesc;
 
 // LAN8700 Ethernet Phy Ctrl/Status Register
 //#define LAN8700_PHY_STATUS			0x1F
-//# 
+#define KSZ8041NL_PHY_STATUS			0x1F
+
 // smartarm3250 use KSZ8041NL PHY
 // PHY Register indices
 #define PHY_REG_BMCR             0x00        // Basic Mode Control Register
@@ -132,6 +133,7 @@ extern PHY_HW_T phyhwdesc;
 #define PHY_BMCR_AUTON_BIT         0x1000    // Auto-negotiation rate bit
 
 // BMSR register specific control bits
+#define PHY_BMSR_AUTON_ABLE		   0x0008
 #define PHY_BMSR_LINKUP_STATUS     0x0004    // Link up status bit
 #define PHY_BMSR_AUTON_COMPLETE    0x0020    // Auto-negotiation complete bit
 #define PHY_BMSR_10M_HALF          0x0800    // 10MBase with half duplex support
