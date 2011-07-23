@@ -157,27 +157,27 @@ static int phy_get_link_status (void)
 	 * (ie - we're capable and it's not done)
 	 */
 	status = 0;
-	RMII_Read(PHY_REG_BMSR, &status);
+	RMII_Read(PHY_BMSR, &status);
 	
-	while ( (status & PHY_BMSR_LINKUP_STATUS)		// link is up
-		&& (status & PHY_BMSR_AUTON_ABLE)			// auto-negotiation enabled
-		&& !(status & PHY_BMSR_AUTON_COMPLETE)		// auto-negotiation not complete
+	while ( (status & PHY_BMSR_LS)		// link is up
+		&& (status & PHY_BMSR_AUTN_ABLE)			// auto-negotiation enabled
+		&& !(status & PHY_BMSR_AUTN_COMP)		// auto-negotiation not complete
 		&& ( mst > 0 )								// not timeout yet 
 		)
 	{
-		RMII_Read(PHY_REG_BMSR, &status);
+		RMII_Read(PHY_BMSR, &status);
 		--mst;
 		msDelay(1);		// delay 1ms		
 	}
 
 	// auto-negotiation timeout, or not enabled, or link isn't up, or negotiation complete
-	if ( status & PHY_BMSR_AUTON_COMPLETE )
+	if ( status & PHY_BMSR_AUTN_COMP )
 	{
 		// auto negotiation complete
 		printf( "ENET:auto-negotiation complete.\n" );
 		return 0;
 	}
-	else if ( (status & PHY_BMSR_LINKUP_STATUS) && (!(status & PHY_BMSR_AUTON_ABLE)) )
+	else if ( (status & PHY_BMSR_LS) && (!(status & PHY_BMSR_AUTN_ABLE)) )
 	{
 		// Auto-negotiation not available, and link is up
 		return 0;

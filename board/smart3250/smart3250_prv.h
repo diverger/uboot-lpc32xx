@@ -114,33 +114,8 @@ extern PHY_HW_T phyhwdesc;
 
 // LAN8700 Ethernet Phy Ctrl/Status Register
 //#define LAN8700_PHY_STATUS			0x1F
-#define KSZ8041NL_PHY_STATUS			0x1F
-
 // smartarm3250 use KSZ8041NL PHY
-// PHY Register indices
-#define PHY_REG_BMCR             0x00        // Basic Mode Control Register
-#define PHY_REG_BMSR             0x01        // Basic Mode Status Register
-#define PHY_REG_IDR1             0x02        // PHY Identifier 1
-#define PHY_REG_IDR2             0x03        // PHY Identifier 2
-#define PHY_REG_ANAR             0x04        // Auto-Negotiation Advertisement
-#define PHY_REG_ANLPAR           0x05        // Auto-Neg. Link Partner Abitily
-#define PHY_REG_ANER             0x06        // Auto-Neg. Expansion Register
-#define PHY_REG_ANNPTR           0x07        // Auto-Neg. Next Page TX
-
-// BMCR register specific control bits
-#define PHY_BMCR_RESET_BIT         0x8000    // Reset bit
-#define PHY_BMCR_SPEED_BIT         0x2000    // 100M speed enable bit
-#define PHY_BMCR_AUTON_BIT         0x1000    // Auto-negotiation rate bit
-
-// BMSR register specific control bits
-#define PHY_BMSR_AUTON_ABLE		   0x0008
-#define PHY_BMSR_LINKUP_STATUS     0x0004    // Link up status bit
-#define PHY_BMSR_AUTON_COMPLETE    0x0020    // Auto-negotiation complete bit
-#define PHY_BMSR_10M_HALF          0x0800    // 10MBase with half duplex support
-#define PHY_BMSR_10M_FULL          0x1000    // 10MBase with full duplex support
-#define PHY_BMSR_TX_HALF           0x2000    // TX with half duplex support
-#define PHY_BMSR_TX_FULL           0x4000    // TX with full duplex support
-#define PHY_BMSR_T4_ABLE           0x8000    // T4 able
+#define KSZ8041NL_PHY_STATUS			0x1F
 
 // Maximum ethernet frame size, maximum RX and TX packets
 #define ENET_MAXF_SIZE             1536
