@@ -2712,7 +2712,7 @@ at91sam9rlek_config	:	unconfig
 ## NXP ARM926EJ-S Systems
 #########################################################################
 
-phy3250_config	:	unconfig
+phy3250_config: unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm926ejs phy3250 NULL lpc3250
 
 ea3250_config:	unconfig
@@ -2721,6 +2721,8 @@ ea3250_config:	unconfig
 fdi3250_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm926ejs fdi3250 NULL lpc3250
 
+smart3250_config: unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs smart3250 NULL lpc3250
 ########################################################################
 ## ARM Integrator boards - see doc/README-integrator for more info.
 integratorap_config	\
