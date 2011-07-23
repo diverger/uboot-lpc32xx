@@ -128,8 +128,8 @@ int phy_reset(void)
 	goodacc = 0;
 	while (mst > 0)
 	{
-		RMII_Read(PHY_REG_BMCR, &tmp);
-		if ((tmp & PHY_BMCR_RESET_BIT) == 0)
+		RMII_Read(PHY_REG_BMCR, &temp);
+		if ((temp & PHY_BMCR_RESET_BIT) == 0)
 		{
 			mst = 0;
 			goodacc = 1;
