@@ -62,6 +62,7 @@
 /* NOR Flash (Spansion S29AL008D) */
 // On smartarm3250 board, use MX29LV160D
 #define CONFIG_SYS_NO_FLASH
+#undef CONFIG_ENV_IS_IN_FLASH
 //#define CONFIG_FLASH_CFI_LEGACY         
 //#define CONFIG_SYS_FLASH_CFI
 //#define CONFIG_FLASH_CFI_DRIVER
@@ -100,8 +101,8 @@
 #define CONFIG_ENV_ADDR					(0xE0008000) /* Sector 3 (0x8000 - 0xFFFF) */
 #else
 #define CONFIG_ENV_IS_IN_NAND			1
-#define CONFIG_ENV_SIZE					0x10000		/* 4 blocks */
-#define CONFIG_ENV_OFFSET				0x1F4000	/* Block 125 */
+#define CONFIG_ENV_SIZE					0x40000		/* 2 blocks, 256K */
+#define CONFIG_ENV_OFFSET				0x100000	/* Block 8/9 */
 #define CONFIG_ENV_ADDR					0x80000100	/* Passed to kernel here */
 #endif
 
