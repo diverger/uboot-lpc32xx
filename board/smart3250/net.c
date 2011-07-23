@@ -108,42 +108,6 @@ int RMII_Read(unsigned long PhyReg, unsigned long *data)
 	return sts;
 }
 
-int phy_reset(void)
-{
-	int goodacc;
-	unsigned long temp, mst;
-	
-	// Reset the PHY and wait for reset to complete
-	goodacc = RMII_Write(PHY_REG_BMCR, PHY_BMCR_RESET_BIT);
-
-	if (goodacc == 0)
-	{
-		// not good
-		return 0;
-	}
-
-	// most try 400
-	mst = 400;
-
-	goodacc = 0;
-	while (mst > 0)
-	{
-		RMII_Read(PHY_REG_BMCR, &temp);
-		if ((temp & PHY_BMCR_RESET_BIT) == 0)
-		{
-			mst = 0;
-			goodacc = 1;
-		}
-		else
-		{
-			mst--;
-			msDelay(1);
-		}
-	}
-
-	return goodacc;
-}
-
 static int phy_get_link_status (void)
 {
 	unsigned long status;
