@@ -333,7 +333,7 @@ void smart3250_get_board_info(void)
 	if (phyhwdesc.fieldvval != PHY_HW_VER_VAL)
 	{
 		/* Set some defaults */
-		phyhwdesc.dramcfg = (PHYHW_DRAM_TYPE_LPSDRAM | PHYHW_DRAM_SIZE_64M);
+		phyhwdesc.dramcfg = (PHYHW_DRAM_TYPE_SDRAM | PHYHW_DRAM_SIZE_64M);
 		phyhwdesc.syscfg = PHYHW_SDIO_POP;
 		phyhwdesc.fieldvval = PHY_HW_VER_VAL;
 
