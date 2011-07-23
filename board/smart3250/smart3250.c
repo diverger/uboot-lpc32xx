@@ -41,9 +41,10 @@ ulong board_flash_get_legacy (ulong base, int banknum, flash_info_t * info)
 	 * PHY3250 board contains two 16-bit SPANSION NOR flash
 	 * to make a single 32 bit NOR flash. 
 	 */
+	// smartarm3250 board contains one 16-bit NOR flash
 	if (banknum == 0)
 	{     /* non-CFI boot flash */
-		info->portwidth = FLASH_CFI_32BIT;
+		info->portwidth = FLASH_CFI_16BIT;
 		info->chipwidth = FLASH_CFI_BY16;
 		info->interface = FLASH_CFI_X16;
 		return 1;
@@ -359,8 +360,8 @@ int board_init (void)
 	gd->bd->bi_boot_params = CONFIG_ENV_ADDR;
 
 #ifdef CONFIG_SYS_FLASH_CFI
-	/* Use 32-bit memory interface for NOR Flash */
-	EMC->emcstatic_regs[0].emcstaticconfig = 0x82;
+	/* Use 16-bit memory interface for NOR Flash */
+	EMC->emcstatic_regs[0].emcstaticconfig = 0x81;
 	/* 
 	 * After Setting a higher clock speed, change the NOR timings to 
 	 * optimum value to get maximum bandwidth
