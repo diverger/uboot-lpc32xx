@@ -329,7 +329,7 @@ void smart3250_get_board_info(void)
 		*p8 = smart3250_sspread(SMART3250_SEEPROM_CFGOFS + idx);
 		p8++;
 	}
-
+	
 	if (phyhwdesc.fieldvval != PHY_HW_VER_VAL)
 	{
 		/* Set some defaults */
