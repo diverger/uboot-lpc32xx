@@ -210,10 +210,10 @@
 /*
  * NAND H/W ECC specific settings
  */
-#define CONFIG_SYS_LPC32XX_DMA            /* DMA supporte required */
-#define CONFIG_SYS_NAND_ECCSIZE       512 /* ECC generated per page */
-#define CONFIG_SYS_NAND_ECCBYTES        6 /* 3 Bytes ECC per 256 Bytes */
-#define CONFIG_SYS_NAND_OOBSIZE        16 /* OOB size in bytes */
+#define CONFIG_SYS_LPC32XX_DMA             /* DMA supporte required */
+#define CONFIG_SYS_NAND_ECCSIZE       2048 /* ECC generated per page */
+#define CONFIG_SYS_NAND_ECCBYTES        6  /* 3 Bytes ECC per 256 Bytes */
+#define CONFIG_SYS_NAND_OOBSIZE        16  /* OOB size in bytes */
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
