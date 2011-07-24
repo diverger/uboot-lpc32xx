@@ -35,6 +35,10 @@ DECLARE_GLOBAL_DATA_PTR;
 
 /* Initialize NOR Flash configuration */
 #ifdef CONFIG_FLASH_CFI_LEGACY
+/*
+ *	Use legacy method to get flash information
+ *	@note	This function is invoked in file: drivers/mtd/cfi_flash.h.
+ */
 ulong board_flash_get_legacy (ulong base, int banknum, flash_info_t * info)
 {
 	/*
