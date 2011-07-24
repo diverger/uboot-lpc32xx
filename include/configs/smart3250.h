@@ -41,7 +41,7 @@
 /*
  * Linux machine type
  */
-#define MACH_TYPE_SMART3250				(2511)
+#define MACH_TYPE_SMART3250				(2514)
 #define MACH_TYPE_UBOOTSYS				MACH_TYPE_SMART3250
 
 /*
