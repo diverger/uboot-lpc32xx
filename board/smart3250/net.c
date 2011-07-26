@@ -31,6 +31,15 @@
 #include "smart3250_prv.h"
 #include "miiphy.h"
 
+#define  ETHERNET_DEBUG
+//#undef ETHERNET_DEBUG
+
+#ifdef	ETHERNET_DEBUG
+#define	__ether_printf(fmt, args...)	printf(fmt , ##args)
+#else
+#define __ether_printf(fmt, args...)
+#endif
+
 static unsigned long g_dmabase;
 static unsigned long gdma_size;
 static TXRX_DESC_T *pTXDesc;
@@ -106,6 +115,41 @@ int RMII_Read(unsigned long PhyReg, unsigned long *data)
 	ENETMAC->mcmd = 0;
 
 	return sts;
+}
+
+//------------------------------------------------------------------------------
+int phy_reset(void)
+{
+	int goodacc;
+	unsigned long tmp1, mst;
+
+	// Reset the PHY and wait for reset to complete
+	goodacc = RMII_Write(PHY_BMCR, PHY_BMCR_RESET);
+	
+	if (goodacc == 0)
+	{
+		return 0;
+	}
+	
+	mst = 400;
+	goodacc = 0;
+	
+	while (mst > 0)
+	{
+		RMII_Read(PHY_BMCR, &tmp1);
+		if ((tmp1 & PHY_BMCR_RESET) == 0)
+		{
+			mst = 0;
+			goodacc = 1;
+		}
+		else
+		{
+			mst--;
+			msDelay(1);
+		}
+	}
+
+	return goodacc;
 }
 
 static int phy_get_link_status (void)
@@ -301,6 +345,19 @@ int HWInit(bd_t * bd)
 	// smartarm3250 board's official u-boot code.
 	// KSZ8041NL has two method to enable auto-negotiation, hardware (Pin 30 pull-up, this is default setting) and software.
 	// On the smartarm3250 board, this pin has been pulled up to 3.3V.
+	btemp = phy_reset();
+	if ( btemp == 0 )
+	{
+		printf("ENET:Reset of PHY timed out\n");
+		return 0;
+	}
+	
+	// Enable rate auto-negotiation for the link
+	if (RMII_Write(PHY_BMCR,
+		(PHY_BMCR_100MB | PHY_BMCR_AUTON)) == 0)
+	{
+		return 0;
+	}
 
 	mst = 1000;
 	btemp = 1;
