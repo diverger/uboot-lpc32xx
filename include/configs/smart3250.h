@@ -229,14 +229,15 @@
 /*
  * Network setup
  */
+// This the default ip settings
 #define CONFIG_NETMASK		255.255.255.0
-#define CONFIG_IPADDR		192.168.1.101
-#define CONFIG_SERVERIP		192.168.1.41
+#define CONFIG_IPADDR		192.168.1.131
+#define CONFIG_SERVERIP		192.168.1.118
 #define CONFIG_GATEWAYIP	192.168.1.1
 
 #define CONFIG_BOOTFILE		uImage
 #define CONFIG_LOADADDR		0x80100000
-#define CONFIG_ROOTPATH		/home/user/ltib/rootfs
+#define CONFIG_ROOTPATH		/home/diverger/work/projects/eldk42/arm
 
 /* Boot arguments for JFFS2 root file system in NAND */
 #define MTDROOTCOMMAND "mtdboot="				\
@@ -251,7 +252,7 @@
 	"console=ttyS0,115200n8 "				\
 	"root=/dev/nfs3 rw nfsroot=${serverip}:${rootpath} "	\
 	"ip=${ipaddr} ethaddr=${ethaddr}\0"
-
+	
 /* Boot arguments for ramdisk image loaded via TFTP */
 #define RDROOTCOMMAND "ramdiskboot="				\
 	"setenv bootargs "					\
@@ -299,10 +300,38 @@
 	"nand write.jffs2 ${rootloadaddr} 0x00540000"		\
 	" ${rootloadsize}\0"
 
+#define BOOTVFPHOME "nfsvfpboothome="				\
+	"setenv rootpath /home/diverger/work/projects/eldk42/armVFP;"	\
+	"setenv serverip 192.168.0.5;"				\
+	"setenv gatewayip 192.168.0.1;"				\
+	"setenv ipaddr 192.168.0.9;"				\
+	"saveenv\0"
+	
+#define BOOTARMHOME "nfsarmboothome="			\
+	"setenv rootpath /home/diverger/work/projects/eldk42/arm;"	\
+	"setenv serverip 192.168.0.5;"				\
+	"setenv gatewayip 192.168.0.1;"				\
+	"setenv ipaddr 192.168.0.9;"				\
+	"saveenv\0"
+	
+#define BOOTVFPOFFICE "nfsvfpbootoffice="		\
+	"setenv rootpath /home/diverger/work/projects/eldk42/armVFP;"	\
+	"setenv serverip 192.168.1.118;"			\
+	"setenv gatewayip 192.168.1.1;"				\
+	"setenv ipaddr 192.168.1.131;"				\
+	"saveenv\0"
+	
+#define BOOTARMOFFICE "nfsarmbootoffice="		\
+	"setenv rootpath /home/diverger/work/projects/eldk42/arm;"	\
+	"setenv serverip 192.168.1.118;"			\
+	"setenv gatewayip 192.168.1.1;"				\
+	"setenv ipaddr 192.168.1.131;"				\
+	"saveenv\0"
+	
 /*
  * Other preset environment variables and example bootargs string
  */
-#define CONFIG_EXTRA_ENV_SETTINGS				\
+#define CONFIG_EXTRA_ENV_SETTINGS		\
 	MTDROOTCOMMAND						\
 	NFSROOTCOMMAND						\
 	RDROOTCOMMAND						\
@@ -316,7 +345,11 @@
 	TFTPSTATICROOTFSLOAD					\
 	TFTPDHCPROOTFSLOAD					\
 	RDROOTFSLOAD						\
-	MTDROOTBURN
+	MTDROOTBURN						\
+	BOOTARMHOME						\
+	BOOTARMOFFICE						\
+	BOOTVFPHOME						\
+	BOOTVFPOFFICE
 
 /* Default boot command */
 #define CONFIG_BOOTCOMMAND					\
