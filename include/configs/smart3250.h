@@ -327,7 +327,6 @@
 	"setenv gatewayip 192.168.1.1;"				\
 	"setenv ipaddr 192.168.1.131;"				\
 	"saveenv\0"
-	
 /*
  * Other preset environment variables and example bootargs string
  */
