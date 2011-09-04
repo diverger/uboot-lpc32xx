@@ -2723,6 +2723,9 @@ fdi3250_config:	unconfig
 
 smart3250_config: unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm926ejs smart3250 NULL lpc3250
+
+handy3250_config: unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs handy3250 NULL lpc3250
 ########################################################################
 ## ARM Integrator boards - see doc/README-integrator for more info.
 integratorap_config	\
