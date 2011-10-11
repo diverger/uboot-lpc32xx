@@ -146,8 +146,16 @@ int dram_init (void)
 {
 	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
 
-	/* 32M, change this for 64M boards */
-	gd->bd->bi_dram[0].size = 0x02000000; /* 32M */
+	/*
+	 * There are 2 variants of the board each with a different memory
+	 * size. The size can be determined by reading the dynamic config
+	 * register and verifying against the board's known 64M DRAM
+	 * mapping number (0x11).
+	 */
+	if (((EMC->emcdynamicconfig0 >> 7) & 0x1F) == 0x11)
+		gd->bd->bi_dram[0].size = 0x04000000;
+	else
+		gd->bd->bi_dram[0].size = 0x02000000;
 
 	return 0;
 }
