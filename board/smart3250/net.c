@@ -193,7 +193,7 @@ static int phy_get_link_status (void)
 	else
 	{
 		//
-		printf( "ENET:Link isn't up.\n" );
+		//printf( "ENET:Link isn't up.\n" );
 		return 1;
 	}
 	
@@ -345,12 +345,14 @@ int HWInit(bd_t * bd)
 	// smartarm3250 board's official u-boot code.
 	// KSZ8041NL has two method to enable auto-negotiation, hardware (Pin 30 pull-up, this is default setting) and software.
 	// On the smartarm3250 board, this pin has been pulled up to 3.3V.
+	/*
 	btemp = phy_reset();
 	if ( btemp == 0 )
 	{
 		printf("ENET:Reset of PHY timed out\n");
 		return 0;
 	}
+	*/
 	
 	// Enable rate auto-negotiation for the link
 	if (RMII_Write(PHY_BMCR,
@@ -501,7 +503,12 @@ int eth_init (bd_t * bd)
 	int rc;
 
 	// Set MAC address from hardware
-	bd->bi_enetaddr[0] = phyhwdesc.mac[0];	bd->bi_enetaddr[1] = phyhwdesc.mac[1];	bd->bi_enetaddr[2] = phyhwdesc.mac[2];	bd->bi_enetaddr[3] = phyhwdesc.mac[3];	bd->bi_enetaddr[4] = phyhwdesc.mac[4];	bd->bi_enetaddr[5] = phyhwdesc.mac[5];
+	bd->bi_enetaddr[0] = phyhwdesc.mac[0];
+	bd->bi_enetaddr[1] = phyhwdesc.mac[1];
+	bd->bi_enetaddr[2] = phyhwdesc.mac[2];
+	bd->bi_enetaddr[3] = phyhwdesc.mac[3];
+	bd->bi_enetaddr[4] = phyhwdesc.mac[4];
+	bd->bi_enetaddr[5] = phyhwdesc.mac[5];
 	printf ("\tHW MAC address:  "
 		"%02X:%02X:%02X:%02X:%02X:%02X\n",
 		bd->bi_enetaddr[0], bd->bi_enetaddr[1],
